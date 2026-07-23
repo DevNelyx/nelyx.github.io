@@ -423,7 +423,7 @@
     <strong>MUSIC1</strong>
     <span>mp4</span>
   </button>
-  <video class="native-player" src="MUSIC1.mp4" controls playsinline preload="auto" autoplay muted loop></video>
+  <video class="native-player" src="MUSIC1.mp4" controls playsinline preload="auto" autoplay loop></video>
   <p class="radio-note" data-fr="La musique démarre automatiquement (son activé après ta première interaction avec la page)." data-en="Music starts automatically (sound enables after your first interaction with the page).">La musique démarre automatiquement (son activé après ta première interaction avec la page).</p>
 </aside>
 
@@ -614,7 +614,7 @@
 
 <section id="projects">
   <div class="wrap">
-    <div class="section-head"><h2 data-fr="Projets" data-en="Projects">Projets</h2><span class="tag" data-fr="// remplace par tes vrais projets" data-en="// replace with your real projects">// remplace par tes vrais projets</span></div>
+    <div class="section-head"><h2 data-fr="Projets" data-en="Projects">Projets</h2><span class="tag" data-fr="" data-en="// replace with your real projects">// remplace par tes vrais projets</span></div>
     <div class="proj-grid">
       <div class="proj-card">
         <div class="proj-thumb" style="background-image:url('universal-rp-fr.png');background-size:cover;background-position:center;"></div>
@@ -717,10 +717,17 @@
   }
 
   function startRadio(){
-    // Démarrage automatique en muet (autorisé par les navigateurs), le son
-    // s'active au premier clic / scroll / touche pressée sur la page.
-    radioPlayer.muted = true;
-    radioPlayer.play().catch(() => {});
+    // On tente un démarrage automatique AVEC le son.
+    radioPlayer.muted = false;
+    const p = radioPlayer.play();
+    if (p && p.catch) {
+      p.then(() => { radioUnmuted = true; }).catch(() => {
+        // Le navigateur a bloqué l'autoplay avec son : on retombe en muet
+        // et le son s'activera au premier clic / scroll / touche pressée.
+        radioPlayer.muted = true;
+        radioPlayer.play().catch(() => {});
+      });
+    }
   }
 
   ['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(evt => {
