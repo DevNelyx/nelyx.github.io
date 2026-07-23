@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nelyx — Builder & Scripteur Roblox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Chakra+Petch:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0607;
+    --bg-panel: #140b0d;
+    --line: #2a1418;
+    --cyan: #ff3b57;
+    --violet: #ff8fa8;
+    --discord: #5865f2;
+    --text: #f2e9ea;
+    --muted: #8f7d81;
+    --ok: #5dffb0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    line-height:1.55;
+    overflow-x:hidden;
+  }
+
+  /* LOADER */
+  .loader{
+    position:fixed;inset:0;z-index:1000;display:grid;place-items:center;
+    background:radial-gradient(circle at center, rgba(255,59,87,0.14), transparent 40%), var(--bg);
+    transition:opacity .6s ease, visibility .6s ease;
+  }
+  body.is-loaded .loader{opacity:0;visibility:hidden;pointer-events:none;}
+  .loader-card{
+    width:min(360px,calc(100vw - 48px));padding:28px;text-align:center;
+    border:1px solid var(--line);border-radius:16px;background:rgba(20,11,13,0.7);
+  }
+  .loader-title{font-family:'Anton',sans-serif;font-size:clamp(2.6rem,8vw,3.6rem);letter-spacing:0.05em;text-transform:uppercase;}
+  .loader-line{height:2px;width:100%;margin-top:20px;overflow:hidden;background:rgba(255,255,255,0.08);}
+  .loader-line span{display:block;width:44%;height:100%;background:linear-gradient(90deg,transparent,var(--cyan),transparent);animation:loading 1.1s ease-in-out infinite;}
+  @keyframes loading{from{transform:translateX(-120%);}to{transform:translateX(260%);}}
+
+  /* PETALS */
+  .petals{position:fixed;inset:0;z-index:2;overflow:hidden;pointer-events:none;}
+  .petal{
+    position:absolute;top:-8vh;border-radius:60% 0 60% 0;
+    background:linear-gradient(135deg,var(--violet),var(--cyan));
+    opacity:var(--opacity);width:var(--size);height:var(--size);
+    animation:petal-fall var(--duration) linear var(--delay) infinite;
+  }
+  @keyframes petal-fall{
+    from{transform:translate3d(var(--start),-8vh,0) rotate(0);}
+    to{transform:translate3d(calc(var(--start) + var(--drift)),112vh,0) rotate(var(--spin));}
+  }
+
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:48px 48px;
+    opacity:0.35;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 20%, transparent 75%);
+    pointer-events:none;
+    z-index:0;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px;position:relative;z-index:1;}
+
+  /* NAV */
+  nav{
+    position:sticky;top:16px;z-index:50;
+  }
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;padding:0;}
+  .nav-pill{
+    display:flex;align-items:center;justify-content:space-between;width:100%;
+    background:rgba(10,6,7,0.7);backdrop-filter:blur(12px);
+    border:1px solid var(--line);border-radius:999px;
+    padding:12px 22px;
+  }
+  .logo{
+    font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:1.05rem;
+    letter-spacing:0.04em;text-transform:uppercase;
+  }
+  .logo span{color:var(--cyan);}
+  nav ul{display:flex;gap:26px;list-style:none;}
+  nav a{color:var(--muted);text-decoration:none;font-size:0.74rem;font-weight:600;
+    text-transform:uppercase;letter-spacing:0.12em;transition:color .2s;}
+  nav a:hover{color:var(--cyan);}
+  .lang-switch{display:flex;gap:4px;border:1px solid var(--line);border-radius:999px;padding:3px;}
+  .lang-btn{
+    background:transparent;border:none;color:var(--muted);cursor:pointer;
+    font-family:'JetBrains Mono',monospace;font-size:0.68rem;font-weight:700;
+    letter-spacing:0.06em;padding:5px 10px;border-radius:999px;transition:all .2s;
+  }
+  .lang-btn.active{background:var(--cyan);color:#1a0508;}
+  .lang-btn:not(.active):hover{color:var(--text);}
+
+  /* HERO */
+  header.hero{
+    padding:120px 0 80px;position:relative;
+    background:var(--bg);
+    overflow:hidden;
+  }
+  .hero-bg{
+    position:absolute;inset:0;width:100%;height:100%;
+    object-fit:cover;object-position:center 30%;
+    opacity:0.6;filter:contrast(1.05) saturate(1.05);z-index:0;
+  }
+  header.hero::before{
+    content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+    background:
+      linear-gradient(180deg, rgba(10,6,7,0.15) 0%, rgba(10,6,7,0.55) 55%, var(--bg) 100%),
+      radial-gradient(ellipse 70% 45% at 50% 100%, rgba(255,59,87,0.18), transparent);
+  }
+  header.hero::after{
+    content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+    background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:52px 52px;opacity:0.18;
+    mask-image: radial-gradient(ellipse 70% 55% at 50% 20%, black 10%, transparent 70%);
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--cyan);
+    text-transform:uppercase;letter-spacing:0.16em;
+    display:flex;align-items:center;gap:10px;margin-bottom:26px;position:relative;z-index:1;
+  }
+  .eyebrow::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ok);
+    box-shadow:0 0 8px var(--ok);}
+  h1{
+    font-family:'Anton',sans-serif;font-weight:400;text-transform:uppercase;
+    font-size:clamp(3rem,8vw,5.6rem);line-height:0.95;letter-spacing:0.01em;
+    margin-bottom:18px;position:relative;z-index:1;
+  }
+  h1 .accent{
+    background:linear-gradient(90deg,var(--cyan),var(--violet));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero-tagline{
+    font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--muted);
+    text-transform:uppercase;letter-spacing:0.1em;margin-bottom:26px;position:relative;z-index:1;
+  }
+  .hero-tagline .hl{color:var(--cyan);}
+  .hero-sub{color:var(--muted);font-size:1.02rem;max-width:500px;margin-bottom:34px;position:relative;z-index:1;}
+  .hero-grid{display:grid;grid-template-columns:1.05fr 0.95fr;gap:40px;align-items:center;position:relative;z-index:1;}
+  @media(max-width:860px){.hero-grid{grid-template-columns:1fr;}}
+
+  .cta-row{display:flex;gap:14px;flex-wrap:wrap;position:relative;z-index:1;}
+  .btn{
+    font-family:'JetBrains Mono',monospace;font-weight:600;font-size:0.76rem;
+    text-transform:uppercase;letter-spacing:0.08em;
+    padding:14px 24px;border-radius:999px;text-decoration:none;
+    display:inline-flex;align-items:center;gap:8px;transition:transform .15s, box-shadow .15s, background .15s;
+    border:1px solid transparent;background:transparent;
+  }
+  .btn-primary{border-color:var(--cyan);color:var(--cyan);}
+  .btn-primary:hover{transform:translateY(-2px);background:rgba(255,59,87,0.1);box-shadow:0 8px 24px -8px rgba(255,59,87,0.5);}
+  .btn-ghost{border-color:var(--discord);color:var(--discord);}
+  .btn-ghost:hover{transform:translateY(-2px);background:rgba(88,101,242,0.12);}
+
+  /* STUDIO PANEL (signature element) */
+  .studio{
+    background:var(--bg-panel);border:1px solid var(--line);border-radius:12px;
+    overflow:hidden;box-shadow:0 30px 60px -30px rgba(0,0,0,0.6);
+  }
+  .studio-bar{
+    display:flex;align-items:center;gap:8px;padding:10px 14px;
+    border-bottom:1px solid var(--line);background:#0c1015;
+  }
+  .studio-bar .dot{width:9px;height:9px;border-radius:50%;background:#2a323d;}
+  .studio-bar .tab{
+    font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--muted);
+    margin-left:8px;
+  }
+  .studio-body{display:grid;grid-template-columns:120px 1fr;min-height:230px;}
+  .explorer{border-right:1px solid var(--line);padding:14px 10px;font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--muted);}
+  .explorer .node{padding:4px 6px;border-radius:4px;white-space:nowrap;}
+  .explorer .node.active{color:var(--cyan);background:rgba(255,59,87,0.08);}
+  .explorer .indent1{padding-left:14px;}
+  .explorer .indent2{padding-left:26px;}
+  .code-pane{padding:16px 18px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:#c7d0dc;}
+  .code-pane .ln{color:#3d4652;display:inline-block;width:18px;user-select:none;}
+  .code-pane .kw{color:var(--violet);}
+  .code-pane .fn{color:var(--cyan);}
+  .code-pane .str{color:var(--ok);}
+  .code-pane .cm{color:#586170;}
+  .caret{display:inline-block;width:7px;height:14px;background:var(--cyan);vertical-align:middle;animation:blink 1s step-start infinite;}
+  @keyframes blink{50%{opacity:0;}}
+
+  /* SECTIONS */
+  section{padding:72px 0;border-top:1px solid var(--line);}
+  .section-head{display:flex;align-items:baseline;gap:14px;margin-bottom:36px;}
+  .section-head h2{font-family:'Chakra Petch',sans-serif;font-size:1.6rem;font-weight:600;}
+  .section-head .tag{font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--muted);}
+
+  /* PROFILES */
+  .profiles-grid{display:grid;grid-template-columns:0.95fr 1.05fr;gap:22px;align-items:start;}
+  @media(max-width:860px){.profiles-grid{grid-template-columns:1fr;}}
+
+  .discord-card{
+    border:1px solid var(--line);border-radius:16px;overflow:hidden;
+    background:var(--bg-panel);
+  }
+  .discord-banner{
+    height:150px;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,59,87,0.5), transparent 55%),
+      radial-gradient(circle at 75% 60%, rgba(255,143,168,0.35), transparent 50%),
+      #1a0508;
+  }
+  .discord-body{padding:0 24px 26px;}
+  .discord-avatar{
+    width:92px;height:92px;margin-top:-46px;border:4px solid var(--bg-panel);border-radius:50%;
+    background:linear-gradient(135deg,var(--violet),var(--cyan));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Anton',sans-serif;font-size:2rem;color:#1a0508;
+  }
+  .discord-name{margin-top:14px;font-family:'Anton',sans-serif;font-size:1.8rem;letter-spacing:0.02em;text-transform:uppercase;}
+  .discord-handle{color:var(--muted);font-size:0.85rem;margin-top:2px;}
+  .discord-tag{margin-top:10px;color:var(--cyan);font-size:0.7rem;letter-spacing:0.16em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;}
+  .discord-bio{
+    margin-top:20px;padding-top:18px;border-top:1px solid var(--line);
+    font-style:italic;font-size:1.05rem;line-height:1.6;
+  }
+  .discord-note{margin-top:14px;color:var(--muted);font-size:0.82rem;line-height:1.6;}
+
+  .roblox-card{
+    border-radius:16px;overflow:hidden;padding:28px;
+    background:
+      radial-gradient(circle at 0% 20%, rgba(255,59,87,0.28), transparent 45%),
+      linear-gradient(160deg, #3a0710, #14050a);
+    border:1px solid rgba(255,59,87,0.3);
+  }
+  .roblox-top{display:flex;align-items:center;gap:18px;}
+  .roblox-avatar{
+    width:82px;height:82px;border-radius:50%;flex-shrink:0;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Anton',sans-serif;font-size:1.9rem;color:#1a0508;
+  }
+  .roblox-name{font-family:'Anton',sans-serif;font-size:1.6rem;text-transform:uppercase;letter-spacing:0.02em;}
+  .roblox-handle{color:var(--muted);font-size:0.9rem;margin-top:2px;}
+  .roblox-stats{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;}
+  .roblox-stat{
+    background:rgba(255,255,255,0.06);border-radius:999px;padding:9px 16px;
+    font-size:0.82rem;color:var(--text);
+  }
+  .roblox-stat b{color:#fff;}
+  .roblox-bio{margin-top:22px;color:#e6d3d6;font-size:0.9rem;line-height:1.6;}
+  .roblox-bio a{color:var(--cyan);text-decoration:underline;}
+
+  /* ABOUT */
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;}
+  @media(max-width:860px){.about-grid{grid-template-columns:1fr;}}
+  .about-grid p{color:var(--muted);margin-bottom:14px;}
+  .stat-list{display:flex;flex-direction:column;gap:18px;}
+  .stat{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:14px;}
+  .stat .label{color:var(--muted);font-size:0.9rem;}
+  .stat .value{font-family:'Chakra Petch',sans-serif;font-weight:600;color:var(--cyan);}
+
+  /* SKILLS */
+  .skills-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+  @media(max-width:640px){.skills-grid{grid-template-columns:1fr;}}
+  .skill-card{
+    background:var(--bg-panel);border:1px solid var(--line);border-radius:10px;padding:22px;
+    transition:border-color .2s;
+  }
+  .skill-card:hover{border-color:var(--cyan);}
+  .skill-card h3{font-family:'Chakra Petch',sans-serif;font-size:1.02rem;margin-bottom:10px;color:var(--text);}
+  .skill-card h3 .dot{color:var(--cyan);margin-right:6px;}
+  .skill-card p{color:var(--muted);font-size:0.88rem;}
+  .bar{height:5px;background:var(--line);border-radius:4px;margin-top:14px;overflow:hidden;}
+  .bar span{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--violet));border-radius:4px;}
+
+  /* ABOUT v2 */
+  .about-eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:0.75rem;letter-spacing:0.18em;
+    text-transform:uppercase;color:var(--cyan);margin-bottom:16px;
+  }
+  .about-title{
+    font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:clamp(2rem,4vw,2.6rem);
+    margin-bottom:30px;
+  }
+  .about-grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:40px;align-items:start;}
+  @media(max-width:860px){.about-grid2{grid-template-columns:1fr;}}
+  .about-left p{color:var(--muted);margin-bottom:16px;font-size:0.98rem;}
+  .about-left .hl{color:var(--cyan);font-weight:600;}
+
+  .quote-panel{
+    border-left:3px solid var(--cyan);background:var(--bg-panel);
+    padding:20px 22px;margin:26px 0;border-radius:0 8px 8px 0;
+  }
+  .quote-panel p{color:var(--text);font-style:italic;font-size:0.98rem;margin:0;}
+
+  .cta-pill{
+    display:inline-flex;align-items:center;gap:10px;
+    border:1px solid rgba(255,59,87,0.35);background:rgba(255,59,87,0.06);
+    color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:0.82rem;
+    padding:12px 18px;border-radius:8px;margin-bottom:24px;
+  }
+
+  .link-row{
+    display:flex;align-items:center;gap:14px;
+    background:var(--bg-panel);border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;margin-bottom:12px;text-decoration:none;
+    transition:border-color .2s;
+  }
+  .link-row:hover{border-color:var(--cyan);}
+  .link-row .icon-avatar{
+    width:38px;height:38px;border-radius:8px;flex-shrink:0;
+    background:linear-gradient(135deg,rgba(255,143,168,0.25),rgba(255,59,87,0.2));
+    display:flex;align-items:center;justify-content:center;font-size:1.05rem;
+  }
+  .link-row .link-text{flex:1;}
+  .link-row .link-title{color:var(--text);font-weight:600;font-size:0.92rem;}
+  .link-row .link-sub{color:var(--muted);font-size:0.8rem;}
+  .link-row .arrow{color:var(--muted);font-size:1.1rem;}
+  .link-row:hover .arrow{color:var(--cyan);}
+
+  .stat-card2{
+    background:var(--bg-panel);border:1px solid var(--line);border-radius:10px;
+    padding:20px 22px;margin-bottom:16px;
+  }
+  .stat-card2 .stat-icon{color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:0.9rem;margin-bottom:10px;}
+  .stat-card2 .stat-big{font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:1.7rem;color:var(--text);margin-bottom:4px;}
+  .stat-card2 .stat-label{color:var(--muted);font-size:0.82rem;}
+
+  /* PROJECTS */
+  .proj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  @media(max-width:860px){.proj-grid{grid-template-columns:1fr 1fr;}}
+  @media(max-width:600px){.proj-grid{grid-template-columns:1fr;}}
+  .proj-card{
+    background:var(--bg-panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  .proj-thumb{
+    height:130px;background:
+      repeating-linear-gradient(45deg, rgba(255,143,168,0.08) 0 10px, rgba(255,59,87,0.05) 10px 20px);
+    border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--muted);
+  }
+  .proj-body{padding:18px;flex:1;display:flex;flex-direction:column;gap:10px;}
+  .proj-body h3{font-family:'Chakra Petch',sans-serif;font-size:1rem;}
+  .proj-body p{color:var(--muted);font-size:0.85rem;flex:1;}
+  .proj-tags{display:flex;gap:6px;flex-wrap:wrap;}
+  .proj-tags span{
+    font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--cyan);
+    border:1px solid rgba(255,59,87,0.3);padding:2px 8px;border-radius:20px;
+  }
+
+  /* CONTACT */
+  .contact-panel{
+    background:var(--bg-panel);border:1px solid var(--line);border-radius:12px;
+    padding:44px;text-align:center;
+  }
+  .contact-panel h2{font-family:'Chakra Petch',sans-serif;font-size:1.8rem;margin-bottom:12px;}
+  .contact-panel p{color:var(--muted);margin-bottom:28px;}
+  .contact-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+  .contact-item{
+    display:flex;align-items:center;gap:8px;
+    border:1px solid var(--line);padding:12px 18px;border-radius:8px;
+    font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:var(--text);text-decoration:none;
+    transition:border-color .2s,color .2s;
+  }
+  .contact-item:hover{border-color:var(--cyan);color:var(--cyan);}
+
+  footer{padding:32px 0;color:var(--muted);font-size:0.8rem;text-align:center;border-top:1px solid var(--line);}
+
+  /* RADIO WIDGET */
+  .radio{
+    position:fixed;right:20px;bottom:20px;z-index:60;
+    width:min(320px,calc(100vw - 32px));padding:14px;
+    border:1px solid var(--line);border-radius:16px;
+    background:rgba(20,11,13,0.85);backdrop-filter:blur(16px);
+    box-shadow:0 20px 60px -20px rgba(0,0,0,0.7);
+  }
+  .radio-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px;}
+  .radio-title{font-family:'Anton',sans-serif;font-size:1.4rem;text-transform:uppercase;letter-spacing:0.03em;}
+  .radio-sub{color:var(--muted);font-size:0.68rem;letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;}
+  .radio-track{
+    width:100%;display:flex;align-items:center;gap:10px;
+    border:1px solid var(--line);border-radius:10px;padding:9px 10px;
+    background:rgba(255,255,255,0.03);color:var(--text);font:inherit;text-align:left;cursor:pointer;
+    margin-bottom:10px;transition:border-color .2s,background .2s;
+  }
+  .radio-track.is-active{border-color:var(--cyan);background:rgba(255,59,87,0.1);}
+  .radio-track .track-num{
+    width:26px;height:26px;border-radius:7px;background:rgba(255,59,87,0.15);
+    display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:var(--cyan);
+    flex-shrink:0;
+  }
+  .radio-track strong{font-size:0.82rem;flex:1;}
+  .radio-track span{color:var(--muted);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.05em;}
+  .native-player{width:100%;display:block;border-radius:10px;background:#000;outline:1px solid var(--line);}
+  .radio-note{margin-top:10px;color:var(--muted);font-size:0.72rem;line-height:1.5;}
+  @media(max-width:640px){.radio{right:12px;bottom:12px;width:min(280px,calc(100vw - 24px));}}
+</style>
+</head>
+<body>
+
+<div class="loader">
+  <div class="loader-card">
+    <div class="loader-title">Nelyx</div>
+    <div class="loader-line"><span></span></div>
+  </div>
+</div>
+
+<div class="petals" aria-hidden="true"></div>
+
+<aside class="radio" aria-label="Radio">
+  <div class="radio-top">
+    <div>
+      <div class="radio-title">Radio</div>
+      <div class="radio-sub" data-fr="Lecteur local" data-en="Local player">Lecteur local</div>
+    </div>
+  </div>
+  <button class="radio-track is-active" type="button" data-src="MUSIC1.mp4">
+    <span class="track-num">1</span>
+    <strong>MUSIC1</strong>
+    <span>mp4</span>
+  </button>
+  <video class="native-player" src="MUSIC1.mp4" controls playsinline preload="auto"></video>
+  <p class="radio-note" data-fr="Lecteur local : choisis un morceau puis lance la lecture." data-en="Local player: pick a track, then press play.">Lecteur local : choisis un morceau puis lance la lecture.</p>
+</aside>
+
+<nav>
+  <div class="wrap">
+    <div class="nav-pill">
+      <div class="logo">Nel<span>yx</span></div>
+      <ul>
+        <li><a href="#about" data-fr="À propos" data-en="About">À propos</a></li>
+        <li><a href="#profiles" data-fr="Profils" data-en="Profiles">Profils</a></li>
+        <li><a href="#services" data-fr="Services" data-en="Services">Services</a></li>
+        <li><a href="#projects" data-fr="Projets" data-en="Projects">Projets</a></li>
+        <li><a href="#contact" data-fr="Contact" data-en="Contact">Contact</a></li>
+      </ul>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="fr" type="button">FR</button>
+        <button class="lang-btn" data-lang="en" type="button">EN</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <img src="hero-bg.gif" class="hero-bg" alt="">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow" data-fr="Builder & Scripteur Roblox" data-en="Roblox Builder & Scripter">Builder & Scripteur Roblox</div>
+      <h1>NEL<span class="accent">YX</span></h1>
+      <div class="hero-tagline" data-fr="NELYX · <span class='hl'>@NNEL_YX</span> · ROBLOX DEV · BUILD, SCRIPT & GAMEPLAY" data-en="NELYX · <span class='hl'>@NNEL_YX</span> · ROBLOX DEV · BUILDING, SCRIPTING & GAMEPLAY">NELYX · <span class="hl">@NNEL_YX</span> · ROBLOX DEV · BUILD, SCRIPT & GAMEPLAY</div>
+      <p class="hero-sub" data-fr="Je construis des environnements et j'écris le Lua qui les fait vivre — du terrain à la mécanique de jeu, en solo ou en équipe de dev." data-en="I build environments and write the Lua that brings them to life — from terrain to gameplay mechanics, solo or as part of a dev team.">Je construis des environnements et j'écris le Lua qui les fait vivre — du terrain à la mécanique de jeu, en solo ou en équipe de dev.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#projects" data-fr="Voir les projets" data-en="View projects">Voir les projets</a>
+        <a class="btn btn-ghost" href="https://discord.com/users/nelyx_dev" target="_blank">Discord</a>
+      </div>
+    </div>
+
+    <div class="studio">
+      <div class="studio-bar">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <div class="tab">MainScript.lua</div>
+      </div>
+      <div class="studio-body">
+        <div class="explorer">
+          <div class="node">▾ Workspace</div>
+          <div class="node indent1">▾ Nelyx</div>
+          <div class="node indent2 active">Builder</div>
+          <div class="node indent2 active">Scripter</div>
+          <div class="node indent1">Terrain</div>
+          <div class="node indent1">Lighting</div>
+        </div>
+        <div class="code-pane">
+<div><span class="ln">01</span><span class="cm" data-fr="-- Bienvenue sur mon portfolio" data-en="-- Welcome to my portfolio">-- Bienvenue sur mon portfolio</span></div>
+<div><span class="ln">02</span><span class="kw">local</span> dev = { name = <span class="str">"Nelyx"</span> }</div>
+<div><span class="ln">03</span></div>
+<div><span class="ln">04</span><span class="fn">function</span> dev:build() </div>
+<div><span class="ln">05</span>&nbsp;&nbsp;<span class="cm" data-fr="-- terrain, structures, level design" data-en="-- terrain, structures, level design">-- terrain, structures, level design</span></div>
+<div><span class="ln">06</span><span class="kw">end</span></div>
+<div><span class="ln">07</span></div>
+<div><span class="ln">08</span><span class="fn">function</span> dev:script()</div>
+<div><span class="ln">09</span>&nbsp;&nbsp;<span class="cm" data-fr="-- gameplay, systèmes, UI" data-en="-- gameplay, systems, UI">-- gameplay, systèmes, UI</span></div>
+<div><span class="ln">10</span><span class="kw">end</span><span class="caret"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="about">
+  <div class="wrap">
+    <div class="about-eyebrow" data-fr="Qui suis-je" data-en="Who I am">Qui suis-je</div>
+    <h2 class="about-title" data-fr="À propos" data-en="About">À propos</h2>
+
+    <div class="about-grid2">
+      <div class="about-left">
+        <p data-fr="Je m'appelle <span class='hl'>Nelyx</span> — builder, scripteur, et passionné de création depuis toujours." data-en="I'm <span class='hl'>Nelyx</span> — builder, scripter, and passionate about creating since forever.">Je m'appelle <span class="hl">Nelyx</span> — builder, scripteur, et passionné de création depuis toujours.</p>
+        <p data-fr="Mon objectif est simple : <span class='hl'>maîtriser chaque outil, chaque technique</span>, chaque secret de la plateforme <span class='hl'>Roblox</span> — et mettre tout ça au service des créateurs avec qui je travaille." data-en="My goal is simple: <span class='hl'>master every tool, every technique</span>, every secret of the <span class='hl'>Roblox</span> platform — and put all of it to work for the creators I collaborate with.">Mon objectif est simple : <span class="hl">maîtriser chaque outil, chaque technique</span>, chaque secret de la plateforme <span class="hl">Roblox</span> — et mettre tout ça au service des créateurs avec qui je travaille.</p>
+        <p data-fr="Parce que pour moi, créer un jeu ce n'est pas juste du code ou du level design. C'est <span class='hl'>donner vie à une idée</span>. Le jeu que tu imagines les yeux fermés, celui que tu dessines dans les marges de tes cahiers — il peut exister pour de vrai." data-en="Because for me, making a game isn't just code or level design. It's <span class='hl'>bringing an idea to life</span>. The game you picture with your eyes closed, the one you sketch in the margins of your notebooks — it can exist for real.">Parce que pour moi, créer un jeu ce n'est pas juste du code ou du level design. C'est <span class="hl">donner vie à une idée</span>. Le jeu que tu imagines les yeux fermés, celui que tu dessines dans les marges de tes cahiers — il peut exister pour de vrai.</p>
+
+        <div class="quote-panel">
+          <p data-fr="&quot;Je suis là pour transformer une idée en jeu jouable. Peu importe ton niveau, peu importe ton idée — on peut la construire ensemble.&quot;" data-en="&quot;I'm here to turn an idea into a playable game. No matter your level, no matter your idea — we can build it together.&quot;">"Je suis là pour transformer une idée en jeu jouable. Peu importe ton niveau, peu importe ton idée — on peut la construire ensemble."</p>
+        </div>
+
+        <p data-fr="Je travaille chaque jour pour progresser, apprendre, et partager. Chaque projet que j'aide à créer est une victoire. Chaque créateur que j'accompagne est une preuve de plus que les limites n'existent que dans la tête." data-en="I work every day to improve, learn, and share. Every project I help build is a win. Every creator I support is one more proof that limits only exist in the mind.">Je travaille chaque jour pour progresser, apprendre, et partager. Chaque projet que j'aide à créer est une victoire. Chaque créateur que j'accompagne est une preuve de plus que les limites n'existent que dans la tête.</p>
+
+        <div class="cta-pill" data-fr="🛠️ Toujours en train de builder ou de scripter quelque chose" data-en="🛠️ Always building or scripting something">🛠️ Toujours en train de builder ou de scripter quelque chose</div>
+
+        <a class="link-row" href="https://www.roblox.com/fr/users/1172265968/profile" target="_blank">
+          <div class="icon-avatar">🎮</div>
+          <div class="link-text">
+            <div class="link-title">@Nnel_yx</div>
+            <div class="link-sub" data-fr="Roblox — voir mes créations" data-en="Roblox — see my creations">Roblox — voir mes créations</div>
+          </div>
+          <div class="arrow">→</div>
+        </a>
+        <a class="link-row" href="https://discord.com/users/nelyx_dev" target="_blank">
+          <div class="icon-avatar">💬</div>
+          <div class="link-text">
+            <div class="link-title">nelyx_dev</div>
+            <div class="link-sub" data-fr="Discord — me contacter directement" data-en="Discord — contact me directly">Discord — me contacter directement</div>
+          </div>
+          <div class="arrow">→</div>
+        </a>
+      </div>
+
+      <div class="about-right">
+        <div class="stat-card2">
+          <div class="stat-icon">∞</div>
+          <div class="stat-big" data-fr="Ambition" data-en="Ambition">Ambition</div>
+          <div class="stat-label" data-fr="sans limite" data-en="with no limit">sans limite</div>
+        </div>
+        <div class="stat-card2">
+          <div class="stat-icon">◆</div>
+          <div class="stat-big">100%</div>
+          <div class="stat-label" data-fr="dédié à créer des expériences" data-en="dedicated to building experiences">dédié à créer des expériences</div>
+        </div>
+        <div class="stat-card2">
+          <div class="stat-icon">○</div>
+          <div class="stat-big">0</div>
+          <div class="stat-label" data-fr="excuse pour ne pas essayer" data-en="excuse not to try">excuse pour ne pas essayer</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="profiles">
+  <div class="wrap">
+    <div class="section-head"><h2 data-fr="Profils" data-en="Profiles">Profils</h2><span class="tag">// discord & roblox</span></div>
+    <div class="profiles-grid">
+      <article class="discord-card">
+        <div class="discord-banner"></div>
+        <div class="discord-body">
+          <div class="discord-avatar">N</div>
+          <div class="discord-name">Nelyx</div>
+          <div class="discord-handle">nelyx_dev</div>
+          <div class="discord-tag">Discord</div>
+          <div class="discord-bio">
+            Roblox Dev<br>
+            Builder & Scripter<br>
+            Build • Script • Systems
+          </div>
+          <p class="discord-note" data-fr="Créateur Roblox concentré sur le build, le script et les systèmes de jeu propres." data-en="Roblox creator focused on building, scripting, and clean game systems.">Créateur Roblox concentré sur le build, le script et les systèmes de jeu propres.</p>
+        </div>
+      </article>
+
+      <article class="roblox-card">
+        <div class="roblox-top">
+          <div class="roblox-avatar" id="rblx-avatar" style="background-image:url('roblox-avatar.png');background-size:cover;background-position:center;"></div>
+          <div>
+            <div class="roblox-name" id="rblx-name">Nelyx</div>
+            <div class="roblox-handle" id="rblx-handle">@NneLyx</div>
+          </div>
+        </div>
+        <div class="roblox-stats">
+          <div class="roblox-stat"><b id="rblx-friends">49</b> <span data-fr="Amis" data-en="Friends">Amis</span></div>
+          <div class="roblox-stat"><b id="rblx-followers">8</b> <span data-fr="Abonnés" data-en="Followers">Abonnés</span></div>
+          <div class="roblox-stat"><b id="rblx-following">2</b> <span data-fr="À suivre" data-en="Following">À suivre</span></div>
+        </div>
+        <div class="roblox-bio" data-fr="Bio à venir. <a href='https://www.roblox.com/fr/users/1172265968/profile' target='_blank'>Voir le profil complet →</a>" data-en="Bio coming soon. <a href='https://www.roblox.com/fr/users/1172265968/profile' target='_blank'>See full profile →</a>">Bio à venir. <a href="https://www.roblox.com/fr/users/1172265968/profile" target="_blank">Voir le profil complet →</a></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="wrap">
+    <div class="section-head"><h2 data-fr="Ce que je fais" data-en="What I do">Ce que je fais</h2><span class="tag">// services</span></div>
+    <div class="skills-grid">
+      <div class="skill-card">
+        <h3><span class="dot">▹</span>Building & Terrain</h3>
+        <p data-fr="Modélisation dans Studio, terrain sculpté, agencement de niveaux, ambiance visuelle." data-en="Modeling in Studio, sculpted terrain, level layout, visual atmosphere.">Modélisation dans Studio, terrain sculpté, agencement de niveaux, ambiance visuelle.</p>
+      </div>
+      <div class="skill-card">
+        <h3><span class="dot">▹</span>Scripting Lua / Luau</h3>
+        <p data-fr="Scripts serveur/client, RemoteEvents, systèmes de gameplay." data-en="Server/client scripts, RemoteEvents, gameplay systems.">Scripts serveur/client, RemoteEvents, systèmes de gameplay.</p>
+      </div>
+      <div class="skill-card">
+        <h3><span class="dot">▹</span><span data-fr="DataStore & sauvegarde" data-en="DataStore & saving">DataStore & sauvegarde</span></h3>
+        <p data-fr="Persistance des données joueur, inventaires, progression." data-en="Player data persistence, inventories, progression.">Persistance des données joueur, inventaires, progression.</p>
+      </div>
+      <div class="skill-card">
+        <h3><span class="dot">▹</span>UI / Interfaces</h3>
+        <p data-fr="Menus, HUD, interfaces réactives avec ScreenGui." data-en="Menus, HUD, responsive interfaces with ScreenGui.">Menus, HUD, interfaces réactives avec ScreenGui.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="wrap">
+    <div class="section-head"><h2 data-fr="Projets" data-en="Projects">Projets</h2><span class="tag" data-fr="// remplace par tes vrais projets" data-en="// replace with your real projects">// remplace par tes vrais projets</span></div>
+    <div class="proj-grid">
+      <div class="proj-card">
+        <div class="proj-thumb" data-fr="[ capture à ajouter ]" data-en="[ screenshot to add ]">[ capture à ajouter ]</div>
+        <div class="proj-body">
+          <h3 data-fr="Nom du projet 1" data-en="Project name 1">Nom du projet 1</h3>
+          <p data-fr="Courte description : ce que tu as construit, ton rôle exact sur ce projet." data-en="Short description: what you built, your exact role on this project.">Courte description : ce que tu as construit, ton rôle exact sur ce projet.</p>
+          <div class="proj-tags"><span>Build</span><span>Script</span></div>
+        </div>
+      </div>
+      <div class="proj-card">
+        <div class="proj-thumb" data-fr="[ capture à ajouter ]" data-en="[ screenshot to add ]">[ capture à ajouter ]</div>
+        <div class="proj-body">
+          <h3 data-fr="Nom du projet 2" data-en="Project name 2">Nom du projet 2</h3>
+          <p data-fr="Courte description du système ou du décor, avec les défis techniques rencontrés." data-en="Short description of the system or scene, with the technical challenges you faced.">Courte description du système ou du décor, avec les défis techniques rencontrés.</p>
+          <div class="proj-tags"><span>Script</span></div>
+        </div>
+      </div>
+      <div class="proj-card">
+        <div class="proj-thumb" data-fr="[ capture à ajouter ]" data-en="[ screenshot to add ]">[ capture à ajouter ]</div>
+        <div class="proj-body">
+          <h3 data-fr="Nom du projet 3" data-en="Project name 3">Nom du projet 3</h3>
+          <p data-fr="Courte description du projet et lien vers la place publiée si disponible." data-en="Short description of the project and link to the published place if available.">Courte description du projet et lien vers la place publiée si disponible.</p>
+          <div class="proj-tags"><span>Build</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap">
+    <div class="contact-panel">
+      <h2 data-fr="Construisons quelque chose" data-en="Let's build something">Construisons quelque chose</h2>
+      <p data-fr="Disponible pour du build, du script, ou les deux — écris-moi." data-en="Available for building, scripting, or both — reach out.">Disponible pour du build, du script, ou les deux — écris-moi.</p>
+      <div class="contact-row">
+        <a class="contact-item" href="https://www.roblox.com/fr/users/1172265968/profile" target="_blank" data-fr="Profil Roblox ↗" data-en="Roblox profile ↗">Profil Roblox ↗</a>
+        <a class="contact-item" href="https://discord.com/users/nelyx_dev" target="_blank" data-fr="Discord : nelyx_dev ↗" data-en="Discord: nelyx_dev ↗">Discord : nelyx_dev ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer data-fr="© 2025/2026 Nelyx — Builder & Scripteur Roblox" data-en="© 2025/2026 Nelyx — Roblox Builder & Scripter">© 2025/2026 Nelyx — Builder & Scripteur Roblox</footer>
+
+<script>
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.body.classList.add('is-loaded');
+      startRadio();
+    }, 500);
+  });
+
+  const petalsLayer = document.querySelector('.petals');
+  for (let i = 0; i < 18; i++) {
+    const petal = document.createElement('div');
+    petal.className = 'petal';
+    petal.style.setProperty('--start', `${Math.random() * 100}vw`);
+    petal.style.setProperty('--drift', `${(Math.random() * 30) - 15}vw`);
+    petal.style.setProperty('--size', `${8 + Math.random() * 10}px`);
+    petal.style.setProperty('--duration', `${10 + Math.random() * 12}s`);
+    petal.style.setProperty('--delay', `${Math.random() * -18}s`);
+    petal.style.setProperty('--spin', `${220 + Math.random() * 400}deg`);
+    petal.style.setProperty('--opacity', `${0.15 + Math.random() * 0.3}`);
+    petalsLayer.appendChild(petal);
+  }
+  const langButtons = document.querySelectorAll('.lang-btn');
+  function setLang(lang){
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-fr]').forEach(el => {
+      const value = lang === 'en' ? el.getAttribute('data-en') : el.getAttribute('data-fr');
+      if (value !== null) el.innerHTML = value;
+    });
+    langButtons.forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  }
+  langButtons.forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+
+  /* RADIO */
+  const radioPlayer = document.querySelector('.native-player');
+  const radioNote = document.querySelector('.radio-note');
+  const radioTrack = document.querySelector('.radio-track');
+
+  function pauseOtherMedia(){
+    document.querySelectorAll('video, audio').forEach(m => { if (m !== radioPlayer) m.pause(); });
+  }
+
+  function playRadio(){
+    pauseOtherMedia();
+    radioPlayer.muted = false;
+    radioPlayer.play().catch(() => {
+      if (radioNote) radioNote.textContent = document.documentElement.lang === 'en'
+        ? 'Click the track once to start playback.'
+        : 'Clique sur le morceau pour lancer la lecture.';
+    });
+  }
+
+  function startRadio(){
+    radioPlayer.play().then(() => {
+      radioPlayer.muted = false;
+    }).catch(() => {
+      if (radioNote) radioNote.textContent = document.documentElement.lang === 'en'
+        ? 'Click the track once to start playback.'
+        : 'Clique sur le morceau pour lancer la lecture.';
+    });
+  }
+
+  if (radioTrack) radioTrack.addEventListener('click', playRadio);
+</script>
+
+</body>
+</html>
