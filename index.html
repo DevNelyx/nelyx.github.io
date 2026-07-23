@@ -227,6 +227,29 @@
   }
   .discord-note{margin-top:14px;color:var(--muted);font-size:0.82rem;line-height:1.6;}
 
+  .badge-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;}
+  .badge{
+    position:relative;width:34px;height:34px;border-radius:9px;
+    display:flex;align-items:center;justify-content:center;font-size:1rem;
+    background:rgba(255,255,255,0.05);border:1px solid var(--line);cursor:default;
+    transition:transform .15s, border-color .15s;
+  }
+  .badge:hover{transform:translateY(-2px);border-color:var(--cyan);}
+  .badge::after{
+    content:attr(data-label);position:absolute;bottom:calc(100% + 8px);left:50%;
+    transform:translateX(-50%);white-space:nowrap;
+    background:#1a0508;border:1px solid var(--line);color:var(--text);
+    font-size:0.68rem;font-family:'JetBrains Mono',monospace;padding:4px 8px;border-radius:6px;
+    opacity:0;pointer-events:none;transition:opacity .15s;
+  }
+  .badge:hover::after{opacity:1;}
+  .badge-custom{
+    width:auto;padding:0 12px;gap:6px;font-family:'JetBrains Mono',monospace;
+    font-size:0.78rem;color:var(--cyan);border-color:rgba(255,59,87,0.35);
+    background:rgba(255,59,87,0.08);
+  }
+  .badge-custom::after{content:none;}
+
   .roblox-card{
     border-radius:16px;overflow:hidden;padding:28px;
     background:
@@ -370,25 +393,34 @@
 
   footer{padding:32px 0;color:var(--muted);font-size:0.8rem;text-align:center;border-top:1px solid var(--line);}
 
-  /* IPTV VOLUME NOTICE */
-  .ipt-volume-notice{
-    position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:80;
-    display:flex;align-items:center;gap:10px;
-    padding:12px 18px;border-radius:999px;
-    border:1px solid var(--line);
-    background:rgba(20,11,13,0.9);backdrop-filter:blur(16px);
+  /* RADIO WIDGET */
+  .radio{
+    position:fixed;right:20px;bottom:20px;z-index:60;
+    width:min(320px,calc(100vw - 32px));padding:14px;
+    border:1px solid var(--line);border-radius:16px;
+    background:rgba(20,11,13,0.85);backdrop-filter:blur(16px);
     box-shadow:0 20px 60px -20px rgba(0,0,0,0.7);
-    color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.78rem;
-    cursor:pointer;transition:opacity .3s,transform .3s;
-    animation:ipt-pulse 1.8s ease-in-out infinite;
   }
-  .ipt-volume-notice.is-hidden{opacity:0;pointer-events:none;transform:translateX(-50%) translateY(10px);}
-  .ipt-volume-notice svg{flex-shrink:0;}
-  @keyframes ipt-pulse{
-    0%,100%{box-shadow:0 20px 60px -20px rgba(0,0,0,0.7),0 0 0 0 rgba(255,59,87,0.35);}
-    50%{box-shadow:0 20px 60px -20px rgba(0,0,0,0.7),0 0 0 8px rgba(255,59,87,0);}
+  .radio-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px;}
+  .radio-title{font-family:'Anton',sans-serif;font-size:1.4rem;text-transform:uppercase;letter-spacing:0.03em;}
+  .radio-sub{color:var(--muted);font-size:0.68rem;letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;}
+  .radio-track{
+    width:100%;display:flex;align-items:center;gap:10px;
+    border:1px solid var(--line);border-radius:10px;padding:9px 10px;
+    background:rgba(255,255,255,0.03);color:var(--text);font:inherit;text-align:left;cursor:pointer;
+    margin-bottom:10px;transition:border-color .2s,background .2s;
   }
-  @media(max-width:640px){.ipt-volume-notice{bottom:14px;font-size:0.72rem;padding:10px 14px;}}
+  .radio-track.is-active{border-color:var(--cyan);background:rgba(255,59,87,0.1);}
+  .radio-track .track-num{
+    width:26px;height:26px;border-radius:7px;background:rgba(255,59,87,0.15);
+    display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:var(--cyan);
+    flex-shrink:0;
+  }
+  .radio-track strong{font-size:0.82rem;flex:1;}
+  .radio-track span{color:var(--muted);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.05em;}
+  .native-player{width:100%;display:block;border-radius:10px;background:#000;outline:1px solid var(--line);}
+  .radio-note{margin-top:10px;color:var(--muted);font-size:0.72rem;line-height:1.5;}
+  @media(max-width:640px){.radio{right:12px;bottom:12px;width:min(280px,calc(100vw - 24px));}}
 </style>
 </head>
 <body>
@@ -402,11 +434,21 @@
 
 <div class="petals" aria-hidden="true"></div>
 
-<video class="native-player" src="MUSIC1.mp4" playsinline preload="auto" autoplay loop style="display:none;"></video>
-<button class="ipt-volume-notice" type="button" id="iptVolumeNotice">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
-  <span data-fr="Clique pour activer le son" data-en="Click to enable sound">Clique pour activer le son</span>
-</button>
+<aside class="radio" aria-label="Radio">
+  <div class="radio-top">
+    <div>
+      <div class="radio-title">Radio</div>
+      <div class="radio-sub" data-fr="Lecteur local" data-en="Local player">Lecteur local</div>
+    </div>
+  </div>
+  <button class="radio-track is-active" type="button" data-src="MUSIC1.mp4">
+    <span class="track-num">1</span>
+    <strong>MUSIC1</strong>
+    <span>mp4</span>
+  </button>
+  <video class="native-player" src="MUSIC1.mp4" controls playsinline preload="auto" autoplay muted loop></video>
+  <p class="radio-note" data-fr="La musique démarre automatiquement (son activé après ta première interaction avec la page)." data-en="Music starts automatically (sound enables after your first interaction with the page).">La musique démarre automatiquement (son activé après ta première interaction avec la page).</p>
+</aside>
 
 <nav>
   <div class="wrap">
@@ -428,7 +470,7 @@
 </nav>
 
 <header class="hero">
-  <img src="hero-bg.png" class="hero-bg" alt="">
+  <img src="hero-bg.gif" class="hero-bg" alt="">
   <div class="wrap hero-grid">
     <div>
       <div class="eyebrow" data-fr="Builder & Scripteur Roblox" data-en="Roblox Builder & Scripter">Builder & Scripteur Roblox</div>
@@ -547,6 +589,17 @@
             Build • Script • Systems
           </div>
           <p class="discord-note" data-fr="Créateur Roblox concentré sur le build, le script et les systèmes de jeu propres." data-en="Roblox creator focused on building, scripting, and clean game systems.">Créateur Roblox concentré sur le build, le script et les systèmes de jeu propres.</p>
+          <div class="badge-row">
+            <div class="badge" data-label="Verified">✅</div>
+            <div class="badge" data-label="Server Booster">🚀</div>
+            <div class="badge" data-label="Donor">💎</div>
+            <div class="badge" data-label="Premium">⭐</div>
+            <div class="badge" data-label="OG">🏆</div>
+            <div class="badge" data-label="Gifter">🎁</div>
+            <div class="badge" data-label="The Million">💯</div>
+            <div class="badge" data-label="Bug Hunter">🐛</div>
+            <div class="badge badge-custom">&lt;/&gt; <span>Dev Roblox</span></div>
+          </div>
         </div>
       </article>
 
@@ -598,11 +651,11 @@
     <div class="section-head"><h2 data-fr="Projets" data-en="Projects">Projets</h2><span class="tag" data-fr="// remplace par tes vrais projets" data-en="// replace with your real projects">// remplace par tes vrais projets</span></div>
     <div class="proj-grid">
       <div class="proj-card">
-        <div class="proj-thumb" style="background-image:url('universal-rp-fr.png');background-size:cover;background-position:center;"></div>
+        <div class="proj-thumb" data-fr="[ capture à ajouter ]" data-en="[ screenshot to add ]">[ capture à ajouter ]</div>
         <div class="proj-body">
-          <h3 data-fr="Universal RP FR" data-en="Universal RP FR">Universal RP FR</h3>
-          <p data-fr="Un jeu de Roleplay français." data-en="A French Roleplay game.">Un jeu de Roleplay français.</p>
-          <div class="proj-tags"><span>Build</span></div>
+          <h3 data-fr="Nom du projet 1" data-en="Project name 1">Nom du projet 1</h3>
+          <p data-fr="Courte description : ce que tu as construit, ton rôle exact sur ce projet." data-en="Short description: what you built, your exact role on this project.">Courte description : ce que tu as construit, ton rôle exact sur ce projet.</p>
+          <div class="proj-tags"><span>Build</span><span>Script</span></div>
         </div>
       </div>
       <div class="proj-card">
@@ -644,7 +697,7 @@
   window.addEventListener('load', () => {
     setTimeout(() => {
       document.body.classList.add('is-loaded');
-      startMusic();
+      startRadio();
     }, 500);
   });
 
@@ -672,44 +725,49 @@
   }
   langButtons.forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
 
-  /* IPTV VOLUME NOTICE */
-  const musicPlayer = document.querySelector('.native-player');
-  const iptVolumeNotice = document.getElementById('iptVolumeNotice');
-  let soundEnabled = false;
+  /* RADIO */
+  const radioPlayer = document.querySelector('.native-player');
+  const radioNote = document.querySelector('.radio-note');
+  const radioTrack = document.querySelector('.radio-track');
+  let radioUnmuted = false;
 
-  function enableSound(){
-    if (soundEnabled || !musicPlayer) return;
-    soundEnabled = true;
-    musicPlayer.muted = false;
-    musicPlayer.play().catch(() => {});
-    if (iptVolumeNotice) iptVolumeNotice.classList.add('is-hidden');
+  function pauseOtherMedia(){
+    document.querySelectorAll('video, audio').forEach(m => { if (m !== radioPlayer) m.pause(); });
   }
 
-  function startMusic(){
-    // Tentative de démarrage automatique AVEC le son.
-    musicPlayer.muted = false;
-    const p = musicPlayer.play();
-    if (p && p.catch) {
-      p.then(() => {
-        soundEnabled = true;
-        if (iptVolumeNotice) iptVolumeNotice.classList.add('is-hidden');
-      }).catch(() => {
-        // Autoplay avec son bloqué par le navigateur : on démarre en muet
-        // et on affiche la notice jusqu'au premier clic.
-        musicPlayer.muted = true;
-        musicPlayer.play().catch(() => {});
-      });
-    }
+  function unmuteRadio(){
+    if (radioUnmuted || !radioPlayer) return;
+    radioUnmuted = true;
+    pauseOtherMedia();
+    radioPlayer.muted = false;
+    radioPlayer.play().catch(() => {});
   }
 
-  if (iptVolumeNotice) iptVolumeNotice.addEventListener('click', enableSound);
+  function playRadio(){
+    unmuteRadio();
+    if (radioNote) radioNote.textContent = document.documentElement.lang === 'en'
+      ? 'Local player.'
+      : 'Lecteur local.';
+  }
 
-  // Le son s'active dès le tout premier geste sur la page (bouger la souris,
-  // scroller, toucher l'écran, appuyer une touche...) — pas besoin de cliquer
-  // précisément sur la bulle.
-  ['pointerdown', 'pointermove', 'keydown', 'scroll', 'touchstart', 'wheel'].forEach(evt => {
-    document.addEventListener(evt, enableSound, { once: true, passive: true });
+  function startRadio(){
+    // On tente d'abord le son direct. Si le navigateur bloque (cas le plus
+    // fréquent sans interaction préalable), on bascule en muet puis on
+    // démute automatiquement au premier geste sur la page.
+    radioPlayer.muted = false;
+    radioPlayer.play().then(() => {
+      radioUnmuted = true;
+    }).catch(() => {
+      radioPlayer.muted = true;
+      radioPlayer.play().catch(() => {});
+    });
+  }
+
+  ['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(evt => {
+    document.addEventListener(evt, unmuteRadio, { once: true, passive: true });
   });
+
+  if (radioTrack) radioTrack.addEventListener('click', playRadio);
 </script>
 
 </body>
