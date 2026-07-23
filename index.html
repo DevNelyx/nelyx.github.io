@@ -370,34 +370,25 @@
 
   footer{padding:32px 0;color:var(--muted);font-size:0.8rem;text-align:center;border-top:1px solid var(--line);}
 
-  /* RADIO WIDGET */
-  .radio{
-    position:fixed;right:20px;bottom:20px;z-index:60;
-    width:min(320px,calc(100vw - 32px));padding:14px;
-    border:1px solid var(--line);border-radius:16px;
-    background:rgba(20,11,13,0.85);backdrop-filter:blur(16px);
+  /* IPTV VOLUME NOTICE */
+  .ipt-volume-notice{
+    position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:80;
+    display:flex;align-items:center;gap:10px;
+    padding:12px 18px;border-radius:999px;
+    border:1px solid var(--line);
+    background:rgba(20,11,13,0.9);backdrop-filter:blur(16px);
     box-shadow:0 20px 60px -20px rgba(0,0,0,0.7);
+    color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.78rem;
+    cursor:pointer;transition:opacity .3s,transform .3s;
+    animation:ipt-pulse 1.8s ease-in-out infinite;
   }
-  .radio-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px;}
-  .radio-title{font-family:'Anton',sans-serif;font-size:1.4rem;text-transform:uppercase;letter-spacing:0.03em;}
-  .radio-sub{color:var(--muted);font-size:0.68rem;letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;}
-  .radio-track{
-    width:100%;display:flex;align-items:center;gap:10px;
-    border:1px solid var(--line);border-radius:10px;padding:9px 10px;
-    background:rgba(255,255,255,0.03);color:var(--text);font:inherit;text-align:left;cursor:pointer;
-    margin-bottom:10px;transition:border-color .2s,background .2s;
+  .ipt-volume-notice.is-hidden{opacity:0;pointer-events:none;transform:translateX(-50%) translateY(10px);}
+  .ipt-volume-notice svg{flex-shrink:0;}
+  @keyframes ipt-pulse{
+    0%,100%{box-shadow:0 20px 60px -20px rgba(0,0,0,0.7),0 0 0 0 rgba(255,59,87,0.35);}
+    50%{box-shadow:0 20px 60px -20px rgba(0,0,0,0.7),0 0 0 8px rgba(255,59,87,0);}
   }
-  .radio-track.is-active{border-color:var(--cyan);background:rgba(255,59,87,0.1);}
-  .radio-track .track-num{
-    width:26px;height:26px;border-radius:7px;background:rgba(255,59,87,0.15);
-    display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:var(--cyan);
-    flex-shrink:0;
-  }
-  .radio-track strong{font-size:0.82rem;flex:1;}
-  .radio-track span{color:var(--muted);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.05em;}
-  .native-player{width:100%;display:block;border-radius:10px;background:#000;outline:1px solid var(--line);}
-  .radio-note{margin-top:10px;color:var(--muted);font-size:0.72rem;line-height:1.5;}
-  @media(max-width:640px){.radio{right:12px;bottom:12px;width:min(280px,calc(100vw - 24px));}}
+  @media(max-width:640px){.ipt-volume-notice{bottom:14px;font-size:0.72rem;padding:10px 14px;}}
 </style>
 </head>
 <body>
@@ -411,21 +402,11 @@
 
 <div class="petals" aria-hidden="true"></div>
 
-<aside class="radio" aria-label="Radio">
-  <div class="radio-top">
-    <div>
-      <div class="radio-title">Radio</div>
-      <div class="radio-sub" data-fr="Lecteur local" data-en="Local player">Lecteur local</div>
-    </div>
-  </div>
-  <button class="radio-track is-active" type="button" data-src="MUSIC1.mp4">
-    <span class="track-num">1</span>
-    <strong>MUSIC1</strong>
-    <span>mp4</span>
-  </button>
-  <video class="native-player" src="MUSIC1.mp4" controls playsinline preload="auto" autoplay loop></video>
-  <p class="radio-note" data-fr="La musique démarre automatiquement (son activé après ta première interaction avec la page)." data-en="Music starts automatically (sound enables after your first interaction with the page).">La musique démarre automatiquement (son activé après ta première interaction avec la page).</p>
-</aside>
+<video class="native-player" src="MUSIC1.mp4" playsinline preload="auto" autoplay loop style="display:none;"></video>
+<button class="ipt-volume-notice" type="button" id="iptVolumeNotice">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+  <span data-fr="Clique pour activer le son" data-en="Click to enable sound">Clique pour activer le son</span>
+</button>
 
 <nav>
   <div class="wrap">
@@ -614,7 +595,7 @@
 
 <section id="projects">
   <div class="wrap">
-    <div class="section-head"><h2 data-fr="Projets" data-en="Projects">Projets</h2><span class="tag" data-fr="" data-en="// replace with your real projects">// remplace par tes vrais projets</span></div>
+    <div class="section-head"><h2 data-fr="Projets" data-en="Projects">Projets</h2><span class="tag" data-fr="// remplace par tes vrais projets" data-en="// replace with your real projects">// remplace par tes vrais projets</span></div>
     <div class="proj-grid">
       <div class="proj-card">
         <div class="proj-thumb" style="background-image:url('universal-rp-fr.png');background-size:cover;background-position:center;"></div>
@@ -663,7 +644,7 @@
   window.addEventListener('load', () => {
     setTimeout(() => {
       document.body.classList.add('is-loaded');
-      startRadio();
+      startMusic();
     }, 500);
   });
 
@@ -691,50 +672,44 @@
   }
   langButtons.forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
 
-  /* RADIO */
-  const radioPlayer = document.querySelector('.native-player');
-  const radioNote = document.querySelector('.radio-note');
-  const radioTrack = document.querySelector('.radio-track');
-  let radioUnmuted = false;
+  /* IPTV VOLUME NOTICE */
+  const musicPlayer = document.querySelector('.native-player');
+  const iptVolumeNotice = document.getElementById('iptVolumeNotice');
+  let soundEnabled = false;
 
-  function pauseOtherMedia(){
-    document.querySelectorAll('video, audio').forEach(m => { if (m !== radioPlayer) m.pause(); });
+  function enableSound(){
+    if (soundEnabled || !musicPlayer) return;
+    soundEnabled = true;
+    musicPlayer.muted = false;
+    musicPlayer.play().catch(() => {});
+    if (iptVolumeNotice) iptVolumeNotice.classList.add('is-hidden');
   }
 
-  function unmuteRadio(){
-    if (radioUnmuted || !radioPlayer) return;
-    radioUnmuted = true;
-    pauseOtherMedia();
-    radioPlayer.muted = false;
-    radioPlayer.play().catch(() => {});
-  }
-
-  function playRadio(){
-    unmuteRadio();
-    if (radioNote) radioNote.textContent = document.documentElement.lang === 'en'
-      ? 'Local player.'
-      : 'Lecteur local.';
-  }
-
-  function startRadio(){
-    // On tente un démarrage automatique AVEC le son.
-    radioPlayer.muted = false;
-    const p = radioPlayer.play();
+  function startMusic(){
+    // Tentative de démarrage automatique AVEC le son.
+    musicPlayer.muted = false;
+    const p = musicPlayer.play();
     if (p && p.catch) {
-      p.then(() => { radioUnmuted = true; }).catch(() => {
-        // Le navigateur a bloqué l'autoplay avec son : on retombe en muet
-        // et le son s'activera au premier clic / scroll / touche pressée.
-        radioPlayer.muted = true;
-        radioPlayer.play().catch(() => {});
+      p.then(() => {
+        soundEnabled = true;
+        if (iptVolumeNotice) iptVolumeNotice.classList.add('is-hidden');
+      }).catch(() => {
+        // Autoplay avec son bloqué par le navigateur : on démarre en muet
+        // et on affiche la notice jusqu'au premier clic.
+        musicPlayer.muted = true;
+        musicPlayer.play().catch(() => {});
       });
     }
   }
 
-  ['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(evt => {
-    document.addEventListener(evt, unmuteRadio, { once: true, passive: true });
-  });
+  if (iptVolumeNotice) iptVolumeNotice.addEventListener('click', enableSound);
 
-  if (radioTrack) radioTrack.addEventListener('click', playRadio);
+  // Le son s'active dès le tout premier geste sur la page (bouger la souris,
+  // scroller, toucher l'écran, appuyer une touche...) — pas besoin de cliquer
+  // précisément sur la bulle.
+  ['pointerdown', 'pointermove', 'keydown', 'scroll', 'touchstart', 'wheel'].forEach(evt => {
+    document.addEventListener(evt, enableSound, { once: true, passive: true });
+  });
 </script>
 
 </body>
