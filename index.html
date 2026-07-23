@@ -423,8 +423,8 @@
     <strong>MUSIC1</strong>
     <span>mp4</span>
   </button>
-  <video class="native-player" src="MUSIC1.mp4" controls playsinline preload="auto"></video>
-  <p class="radio-note" data-fr="Lecteur local : choisis un morceau puis lance la lecture." data-en="Local player: pick a track, then press play.">Lecteur local : choisis un morceau puis lance la lecture.</p>
+  <video class="native-player" src="MUSIC1.mp4" controls playsinline preload="auto" autoplay muted loop></video>
+  <p class="radio-note" data-fr="La musique démarre automatiquement (son activé après ta première interaction avec la page)." data-en="Music starts automatically (sound enables after your first interaction with the page).">La musique démarre automatiquement (son activé après ta première interaction avec la page).</p>
 </aside>
 
 <nav>
@@ -695,30 +695,37 @@
   const radioPlayer = document.querySelector('.native-player');
   const radioNote = document.querySelector('.radio-note');
   const radioTrack = document.querySelector('.radio-track');
+  let radioUnmuted = false;
 
   function pauseOtherMedia(){
     document.querySelectorAll('video, audio').forEach(m => { if (m !== radioPlayer) m.pause(); });
   }
 
-  function playRadio(){
+  function unmuteRadio(){
+    if (radioUnmuted || !radioPlayer) return;
+    radioUnmuted = true;
     pauseOtherMedia();
     radioPlayer.muted = false;
-    radioPlayer.play().catch(() => {
-      if (radioNote) radioNote.textContent = document.documentElement.lang === 'en'
-        ? 'Click the track once to start playback.'
-        : 'Clique sur le morceau pour lancer la lecture.';
-    });
+    radioPlayer.play().catch(() => {});
+  }
+
+  function playRadio(){
+    unmuteRadio();
+    if (radioNote) radioNote.textContent = document.documentElement.lang === 'en'
+      ? 'Local player.'
+      : 'Lecteur local.';
   }
 
   function startRadio(){
-    radioPlayer.play().then(() => {
-      radioPlayer.muted = false;
-    }).catch(() => {
-      if (radioNote) radioNote.textContent = document.documentElement.lang === 'en'
-        ? 'Click the track once to start playback.'
-        : 'Clique sur le morceau pour lancer la lecture.';
-    });
+    // Démarrage automatique en muet (autorisé par les navigateurs), le son
+    // s'active au premier clic / scroll / touche pressée sur la page.
+    radioPlayer.muted = true;
+    radioPlayer.play().catch(() => {});
   }
+
+  ['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(evt => {
+    document.addEventListener(evt, unmuteRadio, { once: true, passive: true });
+  });
 
   if (radioTrack) radioTrack.addEventListener('click', playRadio);
 </script>
