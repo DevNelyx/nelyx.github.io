@@ -87,7 +87,7 @@
     letter-spacing:0.04em;text-transform:uppercase;
   }
   .logo span{color:var(--cyan);}
-  nav ul{display:flex;align-items:center;gap:26px;list-style:none;}
+  nav ul{display:flex;gap:26px;list-style:none;}
   nav a{color:var(--muted);text-decoration:none;font-size:0.74rem;font-weight:600;
     text-transform:uppercase;letter-spacing:0.12em;transition:color .2s;}
   nav a:hover{color:var(--cyan);}
@@ -282,26 +282,6 @@
   }
   .admin-modal h2{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:1.6rem;margin-bottom:4px;}
   .admin-modal .admin-sub{color:var(--muted);font-size:0.82rem;margin-bottom:20px;line-height:1.5;}
-
-  .admin-content{display:none;}
-  .admin-content.is-visible{display:block;}
-  .admin-lock{display:none;}
-  .admin-lock.is-visible{display:block;}
-  .admin-lock-input{
-    width:100%;padding:12px 14px;margin-bottom:10px;
-    border:1px solid var(--line);border-radius:10px;
-    background:rgba(255,255,255,0.03);color:var(--text);
-    font-family:'JetBrains Mono',monospace;font-size:0.85rem;
-  }
-  .admin-lock-input:focus{outline:none;border-color:var(--cyan);}
-  .admin-lock-error{
-    display:none;margin-top:10px;color:#ff6b7d;font-size:0.78rem;
-  }
-  .admin-lock-error.is-visible{display:block;}
-  .admin-lock-success{
-    display:none;margin-top:10px;color:var(--ok);font-size:0.78rem;font-weight:600;
-  }
-  .admin-lock-success.is-visible{display:block;}
   .admin-row{
     display:flex;align-items:center;justify-content:space-between;gap:12px;
     padding:12px 14px;border:1px solid var(--line);border-radius:10px;margin-bottom:10px;
@@ -337,6 +317,14 @@
     padding:6px 10px;border-radius:999px;cursor:pointer;transition:.2s;
   }
   .admin-shortcut:hover{border-color:var(--cyan);color:var(--cyan);}
+  .admin-reopen{
+    position:fixed;left:20px;bottom:20px;z-index:150;
+    width:44px;height:44px;border-radius:50%;
+    background:var(--cyan);color:#1a0508;border:none;font-size:1.2rem;
+    display:none;align-items:center;justify-content:center;cursor:pointer;
+    box-shadow:0 8px 24px -8px rgba(255,59,87,0.6);
+  }
+  .admin-reopen.is-visible{display:flex;}
 
   .gj-reset{
     position:absolute;bottom:8px;right:44px;width:32px;height:32px;border-radius:50%;
@@ -544,47 +532,35 @@
 <div class="admin-overlay" id="admin-overlay">
   <div class="admin-modal" style="position:relative;">
     <button class="admin-close" id="admin-close" type="button">✕</button>
+    <h2>Panel Admin</h2>
+    <p class="admin-sub">Modifie ton site directement, ajoute ou supprime des blocs, puis télécharge la nouvelle version.</p>
 
-    <div class="admin-lock" id="admin-lock">
-      <h2>Panel Admin</h2>
-      <p class="admin-sub">Accès protégé. Entre le mot de passe pour continuer.</p>
-      <form id="admin-lock-form">
-        <input class="admin-lock-input" id="admin-lock-input" type="password" placeholder="Mot de passe" autocomplete="off">
-        <button class="admin-btn admin-btn-primary admin-btn-full" type="submit">Déverrouiller</button>
-      </form>
-      <p class="admin-lock-error" id="admin-lock-error">Mot de passe incorrect.</p>
-      <p class="admin-lock-success" id="admin-lock-success">✓ Panel admin déverrouillé</p>
+    <div class="admin-row">
+      <span>Mode édition (texte + suppression)</span>
+      <button class="admin-toggle-switch" id="admin-edit-toggle" type="button"></button>
     </div>
 
-    <div class="admin-content" id="admin-content">
-      <h2>Panel Admin</h2>
-      <p class="admin-sub">Modifie ton site directement, ajoute ou supprime des blocs, puis télécharge la nouvelle version.</p>
-
-      <div class="admin-row">
-        <span>Mode édition (texte + suppression)</span>
-        <button class="admin-toggle-switch" id="admin-edit-toggle" type="button"></button>
-      </div>
-
-      <div class="admin-shortcuts">
-        <div class="admin-shortcut" data-goto="#about">À propos</div>
-        <div class="admin-shortcut" data-goto="#profiles">Profils</div>
-        <div class="admin-shortcut" data-goto="#services">Services</div>
-        <div class="admin-shortcut" data-goto="#projects">Projets</div>
-        <div class="admin-shortcut" data-goto="#contact">Contact</div>
-      </div>
-
-      <div class="admin-btn-row">
-        <button class="admin-btn" id="admin-add-project" type="button">+ Projet</button>
-        <button class="admin-btn" id="admin-add-skill" type="button">+ Service</button>
-        <button class="admin-btn" id="admin-add-badge" type="button">+ Badge</button>
-        <button class="admin-btn" id="admin-reset" type="button">Réinitialiser</button>
-        <button class="admin-btn admin-btn-primary admin-btn-full" id="admin-export" type="button">⬇ Télécharger le site (index.html)</button>
-      </div>
-
-      <p class="admin-note">Ces modifications ne sont visibles que dans ce navigateur, sur cette page. Pour qu'elles apparaissent pour tout le monde : télécharge le fichier, puis remplace <code>index.html</code> dans ton dépôt GitHub par celui-ci.</p>
+    <div class="admin-shortcuts">
+      <div class="admin-shortcut" data-goto="#about">À propos</div>
+      <div class="admin-shortcut" data-goto="#profiles">Profils</div>
+      <div class="admin-shortcut" data-goto="#services">Services</div>
+      <div class="admin-shortcut" data-goto="#projects">Projets</div>
+      <div class="admin-shortcut" data-goto="#contact">Contact</div>
     </div>
+
+    <div class="admin-btn-row">
+      <button class="admin-btn" id="admin-add-project" type="button">+ Projet</button>
+      <button class="admin-btn" id="admin-add-skill" type="button">+ Service</button>
+      <button class="admin-btn" id="admin-add-badge" type="button">+ Badge</button>
+      <button class="admin-btn" id="admin-reset" type="button">Réinitialiser</button>
+      <button class="admin-btn admin-btn-primary admin-btn-full" id="admin-export" type="button">⬇ Télécharger le site (index.html)</button>
+    </div>
+
+    <p class="admin-note">Ces modifications ne sont visibles que dans ce navigateur, sur cette page. Pour qu'elles apparaissent pour tout le monde : télécharge le fichier, puis remplace <code>index.html</code> dans ton dépôt GitHub par celui-ci.</p>
   </div>
 </div>
+
+<button class="admin-reopen" id="admin-reopen" type="button">⚙</button>
 
 <aside class="radio" aria-label="Radio">
   <div class="radio-top">
@@ -923,10 +899,6 @@
 
   /* ADMIN PANEL */
   (function(){
-    // Mot de passe du panel admin — à changer ici si besoin.
-    const ADMIN_PASSWORD = 'nelyx2026';
-    let authenticated = false;
-
     const overlay = document.getElementById('admin-overlay');
     const closeBtn = document.getElementById('admin-close');
     const editToggle = document.getElementById('admin-edit-toggle');
@@ -936,56 +908,10 @@
     const addProjectBtn = document.getElementById('admin-add-project');
     const addSkillBtn = document.getElementById('admin-add-skill');
     const addBadgeBtn = document.getElementById('admin-add-badge');
-    const adminLock = document.getElementById('admin-lock');
-    const adminContent = document.getElementById('admin-content');
-    const lockForm = document.getElementById('admin-lock-form');
-    const lockInput = document.getElementById('admin-lock-input');
-    const lockError = document.getElementById('admin-lock-error');
-    const lockSuccess = document.getElementById('admin-lock-success');
-
-    lockForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (lockInput.value === ADMIN_PASSWORD) {
-        authenticated = true;
-        lockError.classList.remove('is-visible');
-        lockInput.value = '';
-        lockForm.style.display = 'none';
-        lockSuccess.classList.add('is-visible');
-        setTimeout(() => {
-          lockSuccess.classList.remove('is-visible');
-          lockForm.style.display = '';
-          showAdminContent();
-        }, 900);
-      } else {
-        lockError.classList.add('is-visible');
-        lockInput.value = '';
-        lockInput.focus();
-      }
-    });
-
-    function showAdminContent(){
-      adminLock.classList.remove('is-visible');
-      adminContent.classList.add('is-visible');
-    }
-    function showAdminLock(){
-      adminContent.classList.remove('is-visible');
-      adminLock.classList.add('is-visible');
-      setTimeout(() => lockInput.focus(), 50);
-    }
 
     const textSelector = 'h1, h2, h3, p, .hero-sub, .hero-tagline, .eyebrow, .stat-big, .stat-label, .link-title, .link-sub, .discord-handle, .roblox-handle, .discord-name, .roblox-name span, .contact-item, footer, .proj-tags span, .tag';
     const cardSelectors = ['.skill-card', '.proj-card'];
     let editMode = false;
-
-    // --- Modèles de secours : capturés une fois au chargement, pour pouvoir
-    // toujours ajouter un projet/service même si toutes les cartes ont été supprimées ---
-    const fallbackTemplates = {};
-    (function captureFallbackTemplates(){
-      const projTemplate = document.querySelector('.proj-grid .proj-card');
-      if (projTemplate) fallbackTemplates.proj = projTemplate.cloneNode(true);
-      const skillTemplate = document.querySelector('.skills-grid .skill-card');
-      if (skillTemplate) fallbackTemplates.skill = skillTemplate.cloneNode(true);
-    })();
 
     // --- Ouverture via 10 clics sur le badge "Dev Roblox" ---
     let clickCount = 0;
@@ -1002,23 +928,23 @@
       });
     }
 
-    function openAdmin(){
-      overlay.classList.add('is-open');
-      if (authenticated) showAdminContent(); else showAdminLock();
-    }
+    function openAdmin(){ overlay.classList.add('is-open'); }
     function closeAdmin(){ overlay.classList.remove('is-open'); }
     closeBtn.addEventListener('click', closeAdmin);
     overlay.addEventListener('click', (e) => { if (e.target === overlay) closeAdmin(); });
 
-    // --- Raccourcis de navigation vers les sections (dans le panel admin) ---
-    function goToSection(selector){
-      const target = document.querySelector(selector);
-      closeAdmin();
-      if (target) setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
-    }
+    // --- Raccourcis de navigation vers les sections ---
     document.querySelectorAll('.admin-shortcut').forEach(btn => {
-      btn.addEventListener('click', () => goToSection(btn.dataset.goto));
+      btn.addEventListener('click', () => {
+        const target = document.querySelector(btn.dataset.goto);
+        closeAdmin();
+        if (target) setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+      });
     });
+
+    // --- Bouton flottant pour rouvrir le panel sans refaire les 10 clics ---
+    const reopenBtn = document.getElementById('admin-reopen');
+    reopenBtn.addEventListener('click', openAdmin);
 
     // --- Mode édition : texte modifiable + boutons de suppression ---
     function addDeleteButtons(){
@@ -1170,38 +1096,29 @@
         el.setAttribute('contenteditable', on ? 'true' : 'false');
       });
       if (on) addDeleteButtons(); else removeDeleteButtons();
+      reopenBtn.classList.toggle('is-visible', on);
     }
 
     editToggle.addEventListener('click', () => setEditMode(!editMode));
 
     // --- Ajout de blocs ---
-    function cloneLast(containerSelector, itemSelector, fallbackKey){
+    function cloneLast(containerSelector, itemSelector){
       const container = document.querySelector(containerSelector);
       if (!container) return null;
       const items = container.querySelectorAll(itemSelector + ':not(.gj-plus)');
       const last = items[items.length - 1];
-      // Si toutes les cartes ont été supprimées, on repart du modèle de secours
-      // capturé au chargement de la page, pour ne jamais bloquer l'ajout.
-      const source = last || (fallbackKey && fallbackTemplates[fallbackKey]);
-      if (!source) return null;
-      const clone = source.cloneNode(true);
+      if (!last) return null;
+      const clone = last.cloneNode(true);
       clone.querySelectorAll('.gj-del, .gj-upload, .gj-reset').forEach(d => d.remove());
       delete clone.dataset.gjCaptured;
-      clone.querySelectorAll('.gj-img').forEach(img => {
-        delete img.dataset.gjCaptured;
-        delete img.dataset.gjOriginalStyle;
-        delete img.dataset.gjOriginalSrc;
-        delete img.dataset.gjOriginalText;
-        delete img.dataset.gjOriginalFr;
-        delete img.dataset.gjOriginalEn;
-      });
+      clone.querySelectorAll('.gj-img').forEach(img => { delete img.dataset.gjCaptured; });
       const plusTile = container.querySelector('.gj-plus');
       if (plusTile) container.insertBefore(clone, plusTile); else container.appendChild(clone);
       return clone;
     }
 
     function addProject(){
-      const clone = cloneLast('.proj-grid', '.proj-card', 'proj');
+      const clone = cloneLast('.proj-grid', '.proj-card');
       if (!clone) return;
       const title = clone.querySelector('h3'); if (title) title.textContent = 'Nouveau projet';
       const desc = clone.querySelector('p'); if (desc) desc.textContent = 'Description à modifier.';
@@ -1213,16 +1130,14 @@
         thumb.setAttribute('data-en', '[ screenshot to add ]');
         thumb.textContent = isEn ? '[ screenshot to add ]' : '[ capture à ajouter ]';
       }
-      // On force le mode édition : sinon le titre/description ne sont pas
-      // modifiables et le bouton photo n'apparaît pas sur la nouvelle carte.
-      if (editMode) addDeleteButtons(); else setEditMode(true);
+      if (editMode) addDeleteButtons();
     }
 
     function addSkill(){
-      const clone = cloneLast('.skills-grid', '.skill-card', 'skill');
+      const clone = cloneLast('.skills-grid', '.skill-card');
       if (!clone) return;
       const desc = clone.querySelector('p'); if (desc) desc.textContent = 'Description à modifier.';
-      if (editMode) addDeleteButtons(); else setEditMode(true);
+      if (editMode) addDeleteButtons();
     }
 
     function addBadge(){
